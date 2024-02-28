@@ -1,0 +1,28 @@
+---
+baseline_systemd_services:
+  - systemd-journald
+  - systemd-tmpfiles-setup-dev
+  - systemd-tmpfiles-setup
+
+baseline_dependencies:
+  - python3-libselinux
+  - python3-policycoreutils
+  - firewalld
+  - tmux
+  - net-tools
+  - tcpdump 
+  - rsync
+  - rsyslog
+  - bash-completion
+  - NetworkManager-libnm
+  - nm-connection-editor
+  - hostname
+baseline_package_manager: dnf
+baseline_package_manager_configuration: /etc/yum.conf
+baseline_defaultrepofiles:
+  - rocky
+baseline_defaultrepos:
+  - base
+  - updates
+  - extras
+

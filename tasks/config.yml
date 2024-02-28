@@ -1,0 +1,70 @@
+---
+- name: Config | Ensure host name is in the hosts file
+  lineinfile:
+    dest: /etc/hosts
+    state: present
+    line: "{{ ansible_host }} {{ ansible_hostname }}.{{ ansible_domain }} {{ ansible_hostname }}"
+    regexp: "{{ ansible_hostname }}"
+  when: baseline_hosts_entry
+  tags:
+    - baseline
+    - config
+
+- name: Config | Install custom `/etc/motd` file
+  template:
+    src: etc_motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+  when: baseline_motd == true
+  tags:
+    - baseline
+    - config
+
+- name: Config | Set the TZ environment variable
+  template:
+    src: etc_profile.d_localtime.j2
+    dest: /etc/profile.d/localtime.sh
+  tags:
+    - baseline
+    - config
+
+- name: Config | Ensure SSH daemon is running
+  service:
+    name: sshd
+    enabled: true
+    state: started
+  tags:
+    - baseline
+    - services
+
+- name: Config | Ensure `/var/log/journal` exists
+  file:
+    path: /var/log/journal
+    state: directory
+  notify:
+    - restart journald
+  tags:
+    - baseline
+    - services
+
+- name: Config | Ensure specified services are running
+  service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  with_items: "{{ baseline_start_services }}"
+  tags:
+    - baseline
+    - services
+
+- name: Config | Ensure specified services are NOT running
+  service:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  with_items: "{{ baseline_stop_services }}"
+  tags:
+    - baseline
+    - services

@@ -1,0 +1,79 @@
+---
+- name: Security | Make sure SELinux is {{ baseline_selinux_state }}
+  selinux:
+    policy: targeted
+    state: "{{ baseline_selinux_state }}"
+  tags:
+    - baseline
+    - security
+
+- name: Security | Enable SELinux booleans
+  seboolean:
+    name: "{{ item }}"
+    state: yes
+    persistent: yes
+  with_items: "{{ baseline_selinux_booleans }}"
+  tags:
+    - baseline
+    - security
+
+- name: Security | Set firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  when: baseline_firewall_enabled == true 
+  tags:
+    - baseline
+    - security
+
+- name: Security | Make sure basic services can pass through firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items:
+    - dhcpv6-client
+    - ssh
+  when: baseline_firewall_enabled == true  
+  notify:
+    - restart firewalld
+  tags:
+    - baseline
+    - security
+
+- name: Security | Configure firewall services for services
+  firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items: "{{ baseline_firewall_allow_services }}"
+  notify:
+    - restart firewalld
+  tags:
+    - baseline
+    - security
+
+- name: Security | Configure firewall ports for services
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items: "{{ baseline_firewall_allow_ports }}"
+  notify:
+    - restart firewalld
+  tags:
+    - baseline
+    - security
+    
+- name: Security | Make sure specified interfaces are added
+  firewalld:
+    interface: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items: "{{ baseline_firewall_interfaces }}"
+  notify:
+    - restart firewalld
+  tags:
+    - baseline
+    - security

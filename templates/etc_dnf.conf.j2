@@ -1,0 +1,9 @@
+[main]
+gpgcheck={{ baseline_repo_gpgcheck }}
+installonly_limit={{ baseline_repo_installonly_limit }}
+clean_requirements_on_remove={{ baseline_repo_remove_dependencies }}
+
+{% if baseline_repo_exclude_from_update|length != 0 %}
+exclude={% for item in baseline_repo_exclude_from_update %}{{ item }} {%endfor %}
+{% endif %}
+

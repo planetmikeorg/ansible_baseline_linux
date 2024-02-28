@@ -1,0 +1,50 @@
+---
+
+# Package management
+baseline_enable_repos: []
+baseline_install_packages: []
+baseline_remove_packages: []
+baseline_repo_exclude: []
+baseline_repo_gpgcheck: false
+baseline_repo_installonly_limit: 3
+baseline_repo_remove_dependencies: true
+baseline_repo_exclude_from_update: []
+baseline_repositories: []
+baseline_update: false
+baseline_kt_managed: false
+baseline_kt_certs: http://katello.example.com.com/pub/katello-ca-consumer-latest.noarch.rpm
+baseline_kt_activationkey: ActivationKey
+baseline_kt_org_id: ORGNAME
+baseline_rhn_packages:
+  - osad
+  - python3-osad
+  - python3-rhnlib
+  - python3-spacewalk-usix
+  - rhn-client-tools
+  - rhn-check
+  - rhn-setup
+  - rhnsd
+  - dnf-plugin-spacewalk
+  - "oracle-linux-manager-client-release-*"
+
+# Configuration
+baseline_override_firewalld_zones: false
+baseline_hosts_entry: false
+baseline_motd: false
+baseline_tz: :/etc/localtime
+
+# Services
+baseline_start_services: []
+baseline_stop_services: []
+
+# Security
+baseline_firewall_allow_services: []
+baseline_firewall_allow_ports: []
+baseline_firewall_interfaces: []
+baseline_selinux_state: enforcing
+baseline_selinux_booleans: []
+baseline_firewall_enabled: true
+baseline_taskrunner_key: []
+# Users
+baseline_users: []
+baseline_user_groups: []

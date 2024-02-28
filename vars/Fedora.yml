@@ -1,0 +1,16 @@
+---
+baseline_systemd_services:
+  - systemd-journald.service
+  - systemd-tmpfiles-setup-dev.service
+  - systemd-tmpfiles-setup.service
+
+baseline_dependencies:
+  - libselinux-python
+  - libsemanage-python
+  - firewalld
+  - python-firewall
+  - bash-completion
+  - NetworkManager-libnm
+  - nm-connection-editor
+baseline_package_manager: dnf
+baseline_package_manager_configuration: /etc/dnf/dnf.conf

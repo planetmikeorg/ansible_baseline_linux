@@ -1,0 +1,111 @@
+---
+- name: Install | Ensure the machine-ID is available
+  command: systemd-machine-id-setup
+  args:
+    creates: /etc/machine-id
+  tags: baseline
+
+- name: Install | Ensure basic services are running
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items: "{{ baseline_systemd_services }}"
+  tags: baseline
+
+- name: Install | Ensure specified packages are NOT installed
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ baseline_remove_packages }}"
+  tags:
+    - baseline
+    - install
+
+- name: Install | Ensure specified RHN packages are NOT installed
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ baseline_rhn_packages }}"
+  tags:
+    - baseline
+    - install
+
+- name: Install | Role/Ansible dependencies
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ baseline_dependencies }}"
+  tags:
+    - baseline
+    - install
+
+- name: Install | Package management configuration ({{ baseline_package_manager }})
+  template:
+    src: etc_{{ baseline_package_manager }}.conf.j2
+    dest: "{{ baseline_package_manager_configuration }}"
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - baseline
+    - install
+
+- name: Install | Ensure specified external repositories are installed
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ baseline_repositories }}"
+  tags:
+    - baseline
+    - install
+
+- name: Install | Ensure specified repositories are enabled
+  lineinfile:
+    dest: "/etc/yum.repos.d/{{ item }}.repo"
+    line: 'enabled=1'
+    state: present
+    regexp: '^enabled='
+  with_items: "{{ baseline_enable_repos }}"
+  tags:
+    - baseline
+    - install
+
+- name: Install | Run package updates
+  package:
+    name: '*'
+    state: latest
+  register: updated
+  when: baseline_update
+  tags:
+    - baseline
+    - install
+
+- name: Reboot if updated
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+  when: updated.changed 
+  tags:
+    - baseline
+    - install
+
+- name: Wait for the reboot to complete 
+  wait_for_connection:
+    connect_timeout: 30
+    sleep: 30
+    delay: 5
+    timeout: 600
+  when: updated.changed
+  tags:
+    - baseline
+    - install
+
+- name: Install | Ensure specified packages are installed
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ baseline_install_packages }}"
+  tags:
+    - baseline
+    - install
